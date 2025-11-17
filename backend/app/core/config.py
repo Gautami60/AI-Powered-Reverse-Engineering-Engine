@@ -1,13 +1,13 @@
 """Stores configuration and environment settings."""
 
 import os
+from dotenv import load_dotenv
 
-OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
-# Default model set to GPT-5
-OPENAI_MODEL = os.environ.get("OPENAI_MODEL", "gpt-5")
-# Use the standard Chat Completions API (adjust if you use a different endpoint)
-OPENAI_API_URL = os.environ.get("OPENAI_API_URL", "https://api.openai.com/v1/chat/completions")
+load_dotenv()
 
-# Token and model tuning for GPT-5:
-OPENAI_MAX_TOKENS = int(os.environ.get("OPENAI_MAX_TOKENS", "2000"))  # bigger by default for GPT-5
-OPENAI_TEMPERATURE = float(os.environ.get("OPENAI_TEMPERATURE", "0.0"))
+LLM_PROVIDER = os.environ.get("LLM_PROVIDER", "google")
+
+# Google Gemini configuration
+GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY", "")
+GOOGLE_MODEL = os.environ.get("GOOGLE_MODEL", "gemini-2.5-flash")  # Use gemini-2.5-flash which is available
+GOOGLE_URL = f"https://generativelanguage.googleapis.com/v1beta/models/{GOOGLE_MODEL}:generateContent"

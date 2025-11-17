@@ -13,6 +13,10 @@ def build_explanation_prompt(file_id, function_addr, disassembly_json):
     # Extract ops from disassembly_json["ops"]
     ops = disassembly_json.get("ops", [])
     
+    # Check if disassembly was trimmed
+    was_trimmed = disassembly_json.get("_trimmed", False)
+    original_length = disassembly_json.get("_original_length", len(ops))
+    
     # Produce plain text assembly lines
     asm_lines = []
     for op in ops:
@@ -22,17 +26,21 @@ def build_explanation_prompt(file_id, function_addr, disassembly_json):
     
     asm_text = "\n".join(asm_lines)
     
-    # Compose the user prompt
-    prompt = f"""You are an expert reverse engineer with deep knowledge of x86/16-bit/32-bit/64-bit assembly. 
-Explain what this function does in clear, concise language for a software engineer.
+    # Compose the user prompt with shorter, more focused instructions
+    prompt = f"""You are an expert reverse engineer. 
+Explain this function in 3 parts:
 
-Provide four sections:
-1) High-level summary (1-3 sentences).
-2) Step-by-step explanation of the important instructions and control flow.
-3) Clean pseudocode reconstruction (Python-style).
-4) Any suspicious or noteworthy behavior (I/O, self-modifying, packing, obfuscation).
+1) High-level summary.
+2) Important steps in order.
+3) Simple pseudocode.
+
+Be concise. Avoid unnecessary details.
 
 Disassembly (file_id: {file_id}, addr: {function_addr}):
 {asm_text}"""
+    
+    # Add note about trimming if applicable
+    if was_trimmed:
+        prompt += f"\n\nNOTE: The disassembly was trimmed to avoid Gemini token limits.\nOnly the first and last parts of the function are included.\nOriginal instruction count: {original_length}\nIncluded: 120 instructions."
     
     return prompt
